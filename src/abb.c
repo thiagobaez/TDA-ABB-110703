@@ -205,6 +205,66 @@ abb_t *buscar_posicion_e_insertar_nodo(abb_t *arbol,
 	return arbol;
 }
 
+void *liberar_nodo(abb_t *arbol, nodo_abb_t *actual)
+{
+	void *elemento_eliminado = actual->elemento;
+	free(actual);
+	arbol->tamanio--;
+	return elemento_eliminado;
+}
+
+void *quitar_nodo_hoja(abb_t *arbol, nodo_abb_t *actual, nodo_abb_t *padre)
+{
+	if (padre == NULL) {
+		arbol->nodo_raiz = NULL;
+	} else if (padre->izquierda == actual) {
+		padre->izquierda = NULL;
+	} else {
+		padre->derecha = NULL;
+	}
+
+	return liberar_nodo(arbol, actual);
+}
+
+void *quitar_nodo_con_un_hijo(abb_t *arbol, nodo_abb_t *actual,
+			      nodo_abb_t *padre)
+{
+	if (padre == NULL) {
+		if (actual->izquierda != NULL) {
+			arbol->nodo_raiz = actual->izquierda;
+		} else {
+			arbol->nodo_raiz = actual->derecha;
+		}
+	} else if ((actual->izquierda != NULL && padre->izquierda == actual)) {
+		padre->izquierda = actual->izquierda;
+	} else if ((actual->izquierda != NULL && padre->derecha == actual)) {
+		padre->derecha = actual->izquierda;
+	} else if ((actual->derecha != NULL && padre->izquierda == actual)) {
+		padre->izquierda = actual->derecha;
+	} else {
+		padre->derecha = actual->derecha;
+	}
+	return liberar_nodo(arbol, actual);
+}
+
+void *quitar_nodo_con_dos_hijos(abb_t *arbol, nodo_abb_t *actual,
+				nodo_abb_t *padre)
+{
+	nodo_abb_t *sucesor = buscar_predecesor_inorder(actual);
+
+	if (padre == NULL) {
+		arbol->nodo_raiz = sucesor;
+	} else if (padre->izquierda == actual) {
+		padre->izquierda = sucesor;
+	} else {
+		padre->derecha = sucesor;
+	}
+	sucesor->izquierda = actual->izquierda;
+	sucesor->derecha = actual->derecha;
+
+	return liberar_nodo(arbol, actual);
+}
+
 abb_t *abb_crear(abb_comparador comparador)
 {
 	if (comparador == NULL) {
@@ -258,57 +318,19 @@ void *abb_quitar(abb_t *arbol, void *elemento)
 		if (comparacion == 0) {
 			int cantidad_hijos = cantidad_de_hijos(actual);
 
-			if (cantidad_hijos == 0) {
-				if (padre == NULL) {
-					arbol->nodo_raiz = NULL;
-				} else if (padre->izquierda == actual) {
-					padre->izquierda = NULL;
-				} else {
-					padre->derecha = NULL;
-				}
+			switch (cantidad_hijos) {
+			case 0:
+				return quitar_nodo_hoja(arbol, actual, padre);
+				break;
+			case 1:
+				return quitar_nodo_con_un_hijo(arbol, actual,
+							       padre);
+				break;
+			case 2:
+				return quitar_nodo_con_dos_hijos(arbol, actual,
+								 padre);
+				break;
 			}
-
-			if (cantidad_hijos == 1) {
-				if (padre == NULL) {
-					if (actual->izquierda != NULL) {
-						arbol->nodo_raiz =
-							actual->izquierda;
-					} else {
-						arbol->nodo_raiz =
-							actual->derecha;
-					}
-				} else if ((actual->izquierda != NULL &&
-					    padre->izquierda == actual)) {
-					padre->izquierda = actual->izquierda;
-				} else if ((actual->izquierda != NULL &&
-					    padre->derecha == actual)) {
-					padre->derecha = actual->izquierda;
-				} else if ((actual->derecha != NULL &&
-					    padre->izquierda == actual)) {
-					padre->izquierda = actual->derecha;
-				} else {
-					padre->derecha = actual->derecha;
-				}
-			}
-
-			if (cantidad_hijos == 2) {
-				nodo_abb_t *sucesor =
-					buscar_predecesor_inorder(actual);
-				if (padre == NULL) {
-					arbol->nodo_raiz = sucesor;
-				} else if (padre->izquierda == actual) {
-					padre->izquierda = sucesor;
-				} else {
-					padre->derecha = sucesor;
-				}
-				sucesor->izquierda = actual->izquierda;
-				sucesor->derecha = actual->derecha;
-			}
-
-			void *elemento_eliminado = actual->elemento;
-			free(actual);
-			arbol->tamanio--;
-			return elemento_eliminado;
 		}
 		if (comparacion < 0) {
 			padre = actual;
