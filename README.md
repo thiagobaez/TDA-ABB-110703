@@ -171,7 +171,12 @@ Las funciones que tienen todos estos tipos son:
 - Vacio
 - Recorrer
 
+<div align="left">
+<img width="60%" src="img/abb.png">
+</div>
+
 IMPORTANTE: EL ANÁLISIS DE COMPLEJIDAD DE CADA UNA DE LAS FUNCIONES BÁSICAS SE ENCUENTRA DETALLADO EN EL FUNCIONAMIENTO DEL TP.
+
 
 -   Explique su implementación y decisiones de diseño (por ejemplo, si
     tal o cuál funciones se plantearon de forma recursiva, iterativa o
