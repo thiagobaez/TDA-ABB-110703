@@ -321,15 +321,12 @@ void *abb_quitar(abb_t *arbol, void *elemento)
 			switch (cantidad_hijos) {
 			case 0:
 				return quitar_nodo_hoja(arbol, actual, padre);
-				break;
 			case 1:
 				return quitar_nodo_con_un_hijo(arbol, actual,
 							       padre);
-				break;
 			case 2:
 				return quitar_nodo_con_dos_hijos(arbol, actual,
 								 padre);
-				break;
 			}
 		}
 		if (comparacion < 0) {
